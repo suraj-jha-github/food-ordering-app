@@ -9,6 +9,7 @@ const StoreContextProvider = (props) => {
   const url = "https://food-ordering-app-backend-bi38.onrender.com";
   const [token, setToken] = useState("");
   const [food_list, setFoodList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const addToCart = async (itemId) => {
     if (!cartItems[itemId]) {
@@ -51,28 +52,41 @@ const StoreContextProvider = (props) => {
     for (const item in cartItems) {
       if (cartItems[item] > 0) {
         let itemInfo = food_list.find((product) => product._id === item);
-        totalAmount += itemInfo.price * cartItems[item];
+        if (itemInfo && itemInfo.price) {
+          totalAmount += itemInfo.price * cartItems[item];
+        }
       }
     }
     return totalAmount;
   };
 
   const fetchFoodList = async () => {
-    const response = await axios.get(url + "/api/food/list");
-    if (response.data.success) {
-      setFoodList(response.data.data);
-    } else {
-      alert("Error! Products are not fetching..");
+    try {
+      const response = await axios.get(url + "/api/food/list");
+      if (response.data.success) {
+        setFoodList(response.data.data);
+      } else {
+        toast.error("Error! Products are not fetching..");
+      }
+    } catch (error) {
+      console.error("Error fetching food list:", error);
+      toast.error("Error! Products are not fetching..");
+    } finally {
+      setLoading(false);
     }
   };
 
   const loadCardData = async (token) => {
-    const response = await axios.post(
-      url + "/api/cart/get",
-      {},
-      { headers: { token } }
-    );
-    setCartItems(response.data.cartData);
+    try {
+      const response = await axios.post(
+        url + "/api/cart/get",
+        {},
+        { headers: { token } }
+      );
+      setCartItems(response.data.cartData);
+    } catch (error) {
+      console.error("Error loading cart data:", error);
+    }
   };
 
   useEffect(() => {
@@ -96,6 +110,7 @@ const StoreContextProvider = (props) => {
     url,
     token,
     setToken,
+    loading,
   };
   return (
     <StoreContext.Provider value={contextValue}>
