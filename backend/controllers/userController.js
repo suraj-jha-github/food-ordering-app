@@ -31,6 +31,28 @@ const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET);
 };
 
+// Validate token
+const validateToken = async (req, res) => {
+  try {
+    const token = req.headers.token;
+    if (!token) {
+      return res.json({ success: false, message: "Token not provided" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await userModel.findById(decoded.id);
+    
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    res.json({ success: true, message: "Token is valid", user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+  } catch (error) {
+    console.log("Token validation error:", error);
+    res.json({ success: false, message: "Invalid token" });
+  }
+};
+
 // register user
 
 const registerUser = async (req, res) => {
@@ -74,4 +96,4 @@ const registerUser = async (req, res) => {
   }
 };
 
-export { loginUser, registerUser };
+export { loginUser, registerUser, validateToken };

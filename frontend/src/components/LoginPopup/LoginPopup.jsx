@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 const LoginPopup = ({ setShowLogin }) => {
   const {url, setToken } = useContext(StoreContext);
   const [currentState, setCurrentState] = useState("Login");
+  const [loading, setLoading] = useState(false);
   const [data, setData] = useState({
     name: "",
     email: "",
@@ -22,22 +23,33 @@ const LoginPopup = ({ setShowLogin }) => {
 
   const onLogin = async (event) => {
     event.preventDefault();
-    let newUrl = url;
-    if (currentState === "Login") {
-      newUrl += "/api/user/login";
-    } else {
-      newUrl += "/api/user/register";
-    }
-    const response = await axios.post(newUrl, data);
-    if (response.data.success) {
-      setToken(response.data.token);
-      localStorage.setItem("token", response.data.token);
-      toast.success("Login Successfully")
-      setShowLogin(false);
-    }else{
-      toast.error(response.data.message);
+    setLoading(true);
+    
+    try {
+      let newUrl = url;
+      if (currentState === "Login") {
+        newUrl += "/api/user/login";
+      } else {
+        newUrl += "/api/user/register";
+      }
+      
+      const response = await axios.post(newUrl, data);
+      if (response.data.success) {
+        setToken(response.data.token);
+        localStorage.setItem("token", response.data.token);
+        toast.success("Login Successfully");
+        setShowLogin(false);
+      } else {
+        toast.error(response.data.message || "Login failed");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error(error.response?.data?.message || "Login failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
+  
   return (
     <div className="login-popup">
       <form onSubmit={onLogin} className="login-popup-container">
@@ -60,6 +72,7 @@ const LoginPopup = ({ setShowLogin }) => {
               type="text"
               placeholder="Your name"
               required
+              disabled={loading}
             />
           )}
           <input
@@ -69,6 +82,7 @@ const LoginPopup = ({ setShowLogin }) => {
             type="email"
             placeholder="Your email"
             required
+            disabled={loading}
           />
           <input
             name="password"
@@ -77,10 +91,11 @@ const LoginPopup = ({ setShowLogin }) => {
             type="password"
             placeholder="Your password"
             required
+            disabled={loading}
           />
         </div>
-        <button type="submit">
-          {currentState === "Sign Up" ? "Create Account" : "Login"}
+        <button type="submit" disabled={loading}>
+          {loading ? "Loading..." : (currentState === "Sign Up" ? "Create Account" : "Login")}
         </button>
         <div className="login-popup-condition">
           <input type="checkbox" required />
