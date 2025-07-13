@@ -59,6 +59,14 @@ const Navbar = ({ setShowLogin }) => {
           </Link>
           <div className={getTotalCartAmount() === 0 ? "" : "dot"}></div>
         </div>
+        <a 
+          href="https://food-ordering-app-n7dq.onrender.com/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="admin-button"
+        >
+          Admin
+        </a>
         {!token ? (
           <button onClick={() => setShowLogin(true)}>sign in</button>
         ) : (

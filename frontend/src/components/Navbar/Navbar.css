@@ -36,6 +36,25 @@
     background-color: #fff4f2;
 }
 
+.admin-button{
+    background: transparent;
+    font-size: 16px;
+    color: #49557e;
+    border: 1px solid #49557e;
+    padding: 10px 30px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: 0.3s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.admin-button:hover{
+    background-color: #f0f0f0;
+    color: tomato;
+    border-color: tomato;
+}
+
 .navbar .active{
     padding-bottom: 2px;
     border-bottom: 2px solid #49557e;
@@ -103,7 +122,8 @@
     .navbar-right img{
         width: 22px;
     }
-    .navbar-right button{
+    .navbar-right button,
+    .admin-button{
         padding: 8px 25px;
     }
 }
@@ -121,7 +141,8 @@
     .navbar-right img{
         width: 20px;
     }
-    .navbar-right button{
+    .navbar-right button,
+    .admin-button{
         padding: 7px 20px;
         font-size: 15px;
     }
@@ -129,5 +150,9 @@
 @media (max-width:750px) { 
     .navbar-menu{
         display: none;
+    }
+    .admin-button{
+        padding: 6px 15px;
+        font-size: 14px;
     }
 }
