@@ -204,6 +204,7 @@ const StoreContextProvider = (props) => {
     token,
     setToken,
     loading,
+    clearCart: () => setCartItems({}),
   };
   return (
     <StoreContext.Provider value={contextValue}>
