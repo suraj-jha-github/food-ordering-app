@@ -6,6 +6,7 @@ export const StoreContext = createContext(null);
 
 // Configure axios defaults
 axios.defaults.withCredentials = true;
+axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 const StoreContextProvider = (props) => {
   const [cartItems, setCartItems] = useState({});
@@ -22,8 +23,7 @@ const StoreContextProvider = (props) => {
         {},
         { 
           headers: { 
-            token: userToken,
-            'Content-Type': 'application/json'
+            token: userToken
           },
           withCredentials: true
         }
@@ -50,8 +50,7 @@ const StoreContextProvider = (props) => {
           { itemId },
           { 
             headers: { 
-              token,
-              'Content-Type': 'application/json'
+              token
             },
             withCredentials: true
           }
@@ -77,8 +76,7 @@ const StoreContextProvider = (props) => {
           { itemId },
           { 
             headers: { 
-              token,
-              'Content-Type': 'application/json'
+              token
             },
             withCredentials: true
           }
@@ -111,10 +109,7 @@ const StoreContextProvider = (props) => {
   const fetchFoodList = async () => {
     try {
       const response = await axios.get(url + "/api/food/list", {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        withCredentials: true
       });
       if (response.data.success) {
         setFoodList(response.data.data);
@@ -140,8 +135,7 @@ const StoreContextProvider = (props) => {
         {},
         { 
           headers: { 
-            token: userToken,
-            'Content-Type': 'application/json'
+            token: userToken
           },
           withCredentials: true
         }
