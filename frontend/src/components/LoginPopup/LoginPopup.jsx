@@ -33,7 +33,12 @@ const LoginPopup = ({ setShowLogin }) => {
         newUrl += "/api/user/register";
       }
       
-      const response = await axios.post(newUrl, data);
+      const response = await axios.post(newUrl, data, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        withCredentials: true
+      });
       if (response.data.success) {
         setToken(response.data.token);
         localStorage.setItem("token", response.data.token);
@@ -44,7 +49,11 @@ const LoginPopup = ({ setShowLogin }) => {
       }
     } catch (error) {
       console.error("Login error:", error);
-      toast.error(error.response?.data?.message || "Login failed. Please try again.");
+      if (error.code === 'ERR_NETWORK') {
+        toast.error("Network error! Please check your connection.");
+      } else {
+        toast.error(error.response?.data?.message || "Login failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }

@@ -4,6 +4,9 @@ import { toast } from "react-toastify";
 
 export const StoreContext = createContext(null);
 
+// Configure axios defaults
+axios.defaults.withCredentials = true;
+
 const StoreContextProvider = (props) => {
   const [cartItems, setCartItems] = useState({});
   const url = "https://food-ordering-app-backend-bi38.onrender.com";
@@ -17,7 +20,13 @@ const StoreContextProvider = (props) => {
       const response = await axios.post(
         url + "/api/user/validate",
         {},
-        { headers: { token: userToken } }
+        { 
+          headers: { 
+            token: userToken,
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true
+        }
       );
       return response.data.success;
     } catch (error) {
@@ -39,7 +48,13 @@ const StoreContextProvider = (props) => {
         const response = await axios.post(
           url + "/api/cart/add",
           { itemId },
-          { headers: { token } }
+          { 
+            headers: { 
+              token,
+              'Content-Type': 'application/json'
+            },
+            withCredentials: true
+          }
         );
         if(response.data.success){
           toast.success("item Added to Cart")
@@ -60,7 +75,13 @@ const StoreContextProvider = (props) => {
         const response = await axios.post(
           url + "/api/cart/remove",
           { itemId },
-          { headers: { token } }
+          { 
+            headers: { 
+              token,
+              'Content-Type': 'application/json'
+            },
+            withCredentials: true
+          }
         );
         if(response.data.success){
           toast.success("item Removed from Cart")
@@ -89,7 +110,12 @@ const StoreContextProvider = (props) => {
 
   const fetchFoodList = async () => {
     try {
-      const response = await axios.get(url + "/api/food/list");
+      const response = await axios.get(url + "/api/food/list", {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       if (response.data.success) {
         setFoodList(response.data.data);
       } else {
@@ -97,7 +123,11 @@ const StoreContextProvider = (props) => {
       }
     } catch (error) {
       console.error("Error fetching food list:", error);
-      toast.error("Error! Products are not fetching..");
+      if (error.code === 'ERR_NETWORK') {
+        toast.error("Network error! Please check your connection.");
+      } else {
+        toast.error("Error! Products are not fetching..");
+      }
     } finally {
       setLoading(false);
     }
@@ -108,7 +138,13 @@ const StoreContextProvider = (props) => {
       const response = await axios.post(
         url + "/api/cart/get",
         {},
-        { headers: { token: userToken } }
+        { 
+          headers: { 
+            token: userToken,
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true
+        }
       );
       if (response.data.success) {
         setCartItems(response.data.cartData || {});
