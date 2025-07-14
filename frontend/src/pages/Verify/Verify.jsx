@@ -39,32 +39,46 @@ const Verify = () => {
                 clearCart();
                 localStorage.removeItem("cartItems");
                 
-                // Redirect to myorders after a short delay
-                setTimeout(() => {
-                    console.log("Redirecting to myorders...");
-                    navigate("/myorders", { replace: true });
-                }, 1500);
+                // Redirect to myorders immediately
+                console.log("Redirecting to myorders...");
+                navigate("/myorders", { replace: true });
             } else {
                 setVerificationStatus('Payment verification failed');
                 toast.error(response.data.message || "Payment verification failed");
-                setTimeout(() => {
-                    navigate("/", { replace: true });
-                }, 2000);
+                navigate("/", { replace: true });
             }
         } catch (error) {
             console.error("Verify payment error:", error);
             setVerificationStatus('Error verifying payment');
-            toast.error("Something went wrong with payment verification");
-            setTimeout(() => {
-                navigate("/", { replace: true });
-            }, 2000);
+            
+            // Handle specific error types
+            if (error.response) {
+                console.error("Error response:", error.response.data);
+                toast.error(error.response.data.message || "Payment verification failed");
+            } else if (error.request) {
+                console.error("No response received:", error.request);
+                toast.error("Network error. Please try again.");
+            } else {
+                console.error("Error setting up request:", error.message);
+                toast.error("Something went wrong with payment verification");
+            }
+            
+            navigate("/", { replace: true });
         } finally {
             setLoading(false);
         }
     }
 
     useEffect(() => {
-        console.log("Verify page loaded with:", { success, orderId });
+        console.log("Verify page loaded with:", { success, orderId, token });
+        
+        // Check if user is logged in first
+        if (!token) {
+            console.log("User not logged in, redirecting to home");
+            toast.error("Please login to view your orders");
+            navigate("/", { replace: true });
+            return;
+        }
         
         if (success && orderId) {
             verifyPayment();
@@ -72,20 +86,9 @@ const Verify = () => {
             console.log("Invalid parameters:", { success, orderId });
             setVerificationStatus('Invalid payment verification parameters');
             toast.error("Invalid payment verification parameters");
-            setTimeout(() => {
-                navigate("/", { replace: true });
-            }, 2000);
-        }
-    }, [success, orderId]);
-
-    // Check if user is logged in
-    useEffect(() => {
-        if (!token) {
-            console.log("User not logged in, redirecting to home");
-            toast.error("Please login to view your orders");
             navigate("/", { replace: true });
         }
-    }, [token, navigate]);
+    }, []); // Empty dependency array to run only once
 
     return (
         <div className='verify'>
@@ -94,6 +97,25 @@ const Verify = () => {
                 <p>Verifying your payment...</p>
                 {verificationStatus && <p className="status-message">{verificationStatus}</p>}
                 {loading && <p>Please wait while we process your order...</p>}
+                <div className="debug-info" style={{fontSize: '12px', color: '#999', marginTop: '20px'}}>
+                    <p>Debug: success={success}, orderId={orderId}</p>
+                </div>
+                {!loading && verificationStatus === 'Payment verified successfully!' && (
+                    <button 
+                        onClick={() => navigate("/myorders", { replace: true })}
+                        style={{
+                            background: 'tomato',
+                            color: 'white',
+                            border: 'none',
+                            padding: '10px 20px',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            marginTop: '20px'
+                        }}
+                    >
+                        Go to My Orders
+                    </button>
+                )}
             </div>
         </div>
     )

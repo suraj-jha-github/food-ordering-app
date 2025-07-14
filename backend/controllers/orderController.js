@@ -59,15 +59,24 @@ const verifyOrder = async (req, res) => {
     console.log("Verifying order:", { orderId, success });
     
     if (!orderId) {
+      console.log("No orderId provided");
       return res.json({ success: false, message: "Order ID is required" });
+    }
+
+    if (success === undefined || success === null) {
+      console.log("No success parameter provided");
+      return res.json({ success: false, message: "Success parameter is required" });
     }
 
     const order = await orderModel.findById(orderId);
     if (!order) {
+      console.log("Order not found:", orderId);
       return res.json({ success: false, message: "Order not found" });
     }
 
-    if (success === "true") {
+    console.log("Found order:", { orderId: order._id, userId: order.userId, amount: order.amount });
+
+    if (success === "true" || success === true) {
       await orderModel.findByIdAndUpdate(orderId, { payment: true });
       console.log("Payment verified successfully for order:", orderId);
       res.json({ success: true, message: "Payment verified successfully" });
