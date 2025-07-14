@@ -13,6 +13,7 @@ const Verify = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [verificationStatus, setVerificationStatus] = useState('');
+    const [countdown, setCountdown] = useState(0);
 
     const verifyPayment = async () => {
         try {
@@ -33,15 +34,24 @@ const Verify = () => {
             
             if (response.data.success) {
                 setVerificationStatus('Payment verified successfully!');
-                toast.success("Order Placed Successfully!");
+                toast.success("Order Placed Successfully! Redirecting to home page...");
                 
                 // Clear cart after successful payment
                 clearCart();
                 localStorage.removeItem("cartItems");
                 
-                // Redirect to myorders immediately
-                console.log("Redirecting to myorders...");
-                navigate("/myorders", { replace: true });
+                // Countdown and redirect
+                let count = 3;
+                setCountdown(count);
+                const countdownInterval = setInterval(() => {
+                    count--;
+                    setCountdown(count);
+                    if (count <= 0) {
+                        clearInterval(countdownInterval);
+                        console.log("Redirecting to home page...");
+                        navigate("/", { replace: true });
+                    }
+                }, 1000);
             } else {
                 setVerificationStatus('Payment verification failed');
                 toast.error(response.data.message || "Payment verification failed");
@@ -97,12 +107,17 @@ const Verify = () => {
                 <p>Verifying your payment...</p>
                 {verificationStatus && <p className="status-message">{verificationStatus}</p>}
                 {loading && <p>Please wait while we process your order...</p>}
+                {countdown > 0 && (
+                    <p className="countdown-message">
+                        Redirecting to home page in {countdown} seconds...
+                    </p>
+                )}
                 <div className="debug-info" style={{fontSize: '12px', color: '#999', marginTop: '20px'}}>
                     <p>Debug: success={success}, orderId={orderId}</p>
                 </div>
                 {!loading && verificationStatus === 'Payment verified successfully!' && (
                     <button 
-                        onClick={() => navigate("/myorders", { replace: true })}
+                        onClick={() => navigate("/", { replace: true })}
                         style={{
                             background: 'tomato',
                             color: 'white',
@@ -113,7 +128,7 @@ const Verify = () => {
                             marginTop: '20px'
                         }}
                     >
-                        Go to My Orders
+                        Go to Home Page Now
                     </button>
                 )}
             </div>
