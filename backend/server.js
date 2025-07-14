@@ -18,7 +18,6 @@ const corsOptions = {
     if (!origin) return callback(null, true);
     
     const allowedOrigins = [
-      'https://food-delivery-frontend-s2l9.onrender.com',
       'https://food-ordering-app-frontend-3mzu.onrender.com',
       'https://food-delivery-admin-wrme.onrender.com',
       'https://food-ordering-app-n7dq.onrender.com',
