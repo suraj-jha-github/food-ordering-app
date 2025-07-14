@@ -1,16 +1,38 @@
 .verify{
     min-height: 60vh;
     display: grid;
+    place-items: center;
 }
+
+.verify-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    text-align: center;
+}
+
 .verify .spinner{
     width: 100px;
     height: 100px;
-    place-self: center;
     border: 5px solid #bdbdbd;
     border-top-color: tomato;
     border-radius: 50%;
     animation: rotate 1s infinite;
 }
+
+.verify-container p{
+    font-size: 18px;
+    color: #49557e;
+    margin: 0;
+}
+
+.verify-container p:first-of-type{
+    font-size: 20px;
+    font-weight: 600;
+    color: tomato;
+}
+
 @keyframes rotate {
     100%{
         transform: rotate(360deg);
