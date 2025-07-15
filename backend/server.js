@@ -84,13 +84,37 @@ app.use((req, res, next) => {
   }
 });
 
-// Health check endpoint for Render
+// Optimized health check endpoint for Render - responds immediately
 app.get("/health", (req, res) => {
-  res.status(200).json({ status: "OK", message: "Server is running" });
+  res.status(200).json({ 
+    status: "OK", 
+    message: "Server is running",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
 });
 
-// DB connection
-connectDB();
+// Additional lightweight health check for faster response
+app.get("/ping", (req, res) => {
+  res.status(200).send("pong");
+});
+
+// DB connection with retry logic
+let dbConnected = false;
+const connectDBWithRetry = async () => {
+  try {
+    await connectDB();
+    dbConnected = true;
+    console.log("Database connected successfully");
+  } catch (error) {
+    console.error("Database connection failed:", error.message);
+    // Don't exit process, let it retry
+    setTimeout(connectDBWithRetry, 5000);
+  }
+};
+
+// Start DB connection
+connectDBWithRetry();
 
 // api endpoints
 app.use("/api/food", foodRouter);
@@ -100,7 +124,12 @@ app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
 
 app.get("/", (req, res) => {
-  res.send("API Working");
+  res.json({ 
+    message: "API Working",
+    status: "online",
+    database: dbConnected ? "connected" : "connecting",
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Error handling middleware
@@ -130,10 +159,22 @@ app.use((req, res) => {
 app.listen(port, () => {
   console.log(`Server Started on port: ${port}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Database status: ${dbConnected ? 'Connected' : 'Connecting...'}`);
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
   console.log('Unhandled Rejection:', err);
   process.exit(1);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received, shutting down gracefully');
+  process.exit(0);
 });

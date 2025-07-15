@@ -4,13 +4,29 @@
   {
    "src": "server.js",
    "use": "@vercel/node",
-   "config": { "includeFiles": ["dist/**"] }
+   "config": { 
+     "includeFiles": ["dist/**"],
+     "maxLambdaSize": "15mb"
+   }
   }
  ],
  "routes": [
   {
+   "src": "/health",
+   "dest": "server.js"
+  },
+  {
+   "src": "/ping",
+   "dest": "server.js"
+  },
+  {
    "src": "/(.*)",
    "dest": "server.js"
   }
- ]
+ ],
+ "functions": {
+   "server.js": {
+     "maxDuration": 30
+   }
+ }
 }
